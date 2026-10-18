@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Kiểm Tra Chẩn Đoán Tính Cách Bảo Mật</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(circle at center, #111827, #030712);
+        }
+        .neon-border {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+        .dodging-btn {
+            transition: all 0.15s ease-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); }
+        }
+        .pulse-danger {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 flex items-center justify-center p-4 overflow-x-hidden">
+
+    <!-- Container chính -->
+    <div class="max-w-md w-full bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 backdrop-blur-md neon-border relative shadow-2xl">
+        
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <span class="inline-block bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-500/20 mb-2 tracking-wider uppercase">
+                🛡️ HỆ THỐNG AN NINH TOÀN CẦU
+            </span>
+            <h1 class="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
+                BÀI KIỂM TRA CHẨN ĐOÁN TÍNH CÁCH BẢO MẬT
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Mã xác thực: <span class="font-mono text-emerald-400">#AI-9981-TROLL</span></p>
+        </div>
+
+        <!-- BƯỚC 1: Nhập tên & Bắt đầu -->
+        <div id="step-name" class="space-y-5">
+            <div>
+                <label for="victim-name" class="block text-sm font-medium text-slate-300 mb-2">
+                    Vui lòng nhập họ và tên thật của bạn:
+                </label>
+                <input type="text" id="victim-name" placeholder="Ví dụ: Nguyễn Văn A..." 
+                    class="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl px-4 py-3 outline-none transition-all placeholder:text-slate-600">
+                <p id="name-error" class="text-red-400 text-xs mt-1 hidden">⚠️ Hãy nhập tên trước khi tiếp tục nha!</p>
+            </div>
+            <button onclick="startQuiz()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold py-3.5 px-6 rounded-xl shadow-lg transition-all transform active:scale-95 text-base">
+                Bắt đầu phân tích dữ liệu 🚀
+            </button>
+        </div>
+
+        <!-- BƯỚC 2: Câu hỏi troll với nút né -->
+        <div id="step-question" class="hidden space-y-6 text-center">
+            <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800">
+                <p class="text-xs text-emerald-400 font-mono mb-1">CÂU HỎI XÁC MINH SINH TRẮC HỌC</p>
+                <h2 id="question-text" class="text-lg md:text-xl font-bold text-white">
+                    Chào <span id="display-name" class="text-yellow-400"></span>, bạn có tự nguyện nhận mình là <span class="text-pink-400 font-black text-xl">CHÓ</span> không?
+                </h2>
+            </div>
+
+            <!-- Khu vực chứa các nút -->
+            <div id="btn-container" class="relative min-h-[160px] w-full flex items-center justify-center gap-4">
+                <!-- Nút CÓ -->
+                <button onclick="acceptTroll()" class="bg-gradient-to-r from-emerald-500 to-green-600 hover:scale-105 text-slate-950 font-extrabold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/20 transition-all z-10">
+                    CÓ (Chấp nhận) 🐶
+                </button>
+
+                <!-- Nút KHÔNG (Né tránh) -->
+                <button id="no-btn" onmouseover="dodgeButton()" onclick="clickedNo()" class="dodging-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3.5 px-6 rounded-xl border border-slate-600 absolute">
+                    Không (Xóa câu hỏi) ❌
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 italic">Lưu ý: Hệ thống AI ghi nhận chính xác 100%, không thể bấm hủy.</p>
+        </div>
+
+        <!-- BƯỚC 3: Màn hình Hack/Phân tích giả lập -->
+        <div id="step-loading" class="hidden space-y-5 text-center py-4">
+            <div class="relative w-20 h-20 mx-auto">
+                <div class="absolute inset-0 rounded-full border-4 border-emerald-500/20"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-emerald-400 border-t-transparent animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-2xl">⚡</div>
+            </div>
+            
+            <div class="font-mono space-y-2">
+                <p id="loading-status" class="text-emerald-400 text-sm font-semibold animate-pulse">Đang kết nối vệ tinh phân tích DNA...</p>
+                <div class="w-full bg-slate-950 rounded-full h-2.5 overflow-hidden p-0.5 border border-slate-800">
+                    <div id="progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BƯỚC 4: Kết quả / Bằng chứng nhận -->
+        <div id="step-result" class="hidden text-center space-y-5">
+            <div id="certificate" class="bg-gradient-to-b from-amber-500/10 to-slate-950 p-6 rounded-2xl border-2 border-yellow-500/40 relative overflow-hidden shadow-2xl">
+                <div class="absolute -right-8 -top-8 bg-yellow-500 text-slate-950 text-xs font-extrabold px-8 py-2 rotate-45 uppercase">
+                    CHÍNH THỨC
+                </div>
+                
+                <div class="text-4xl mb-2">📜</div>
+                <h3 class="text-amber-400 font-bold text-lg uppercase tracking-wider">CHỨNG NHẬN ĐẶC BIỆT</h3>
+                
+                <p class="text-xs text-slate-400 mt-1">Xác nhận độc quyền từ Hệ Thống Troll Quốc Tế</p>
+
+                <div class="my-4 py-3 border-y border-yellow-500/20">
+                    <p class="text-sm text-slate-300">Xác nhận anh/chị:</p>
+                    <p id="cert-name" class="text-xl font-black text-yellow-300 uppercase my-1">NGUYỄN VĂN A</p>
+                    <p class="text-sm text-slate-300">Đã chính thức trở thành:</p>
+                    <p id="cert-title" class="text-lg font-black text-pink-400 mt-1 uppercase">🐶 CHÚ CÚN MẶT DÀY LẮM CÚÂU 🐶</p>
+                </div>
+
+                <p class="text-xs text-slate-400 italic">"Đã bấm CÓ đồng nghĩa với việc không bao giờ được chối!"</p>
+            </div>
+
+            <!-- Nút chia sẻ / Gửi tiếp -->
+            <div class="space-y-2">
+                <button onclick="shareLink()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span>🔗</span> Gửi cho nạn nhân tiếp theo
+                </button>
+                <button onclick="resetQuiz()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs py-2 px-4 rounded-xl transition-all">
+                    🔄 Chơi lại lượt nữa
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Audio FX bằng Web Audio API -->
+    <script>
+        // Tạo âm thanh vui nhộn đơn giản
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playBeep(freq = 440, type = 'sine', duration = 0.1) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function playFailSound() {
+            playBeep(200, 'sawtooth', 0.2);
+            setTimeout(() => playBeep(150, 'sawtooth', 0.3), 150);
+        }
+
+        function playSuccessSound() {
+            playBeep(440, 'triangle', 0.1);
+            setTimeout(() => playBeep(587.33, 'triangle', 0.1), 100);
+            setTimeout(() => playBeep(880, 'triangle', 0.3), 200);
+        }
+
+        let victimName = "";
+        let dodgeCount = 0;
+
+        function startQuiz() {
+            const input = document.getElementById('victim-name');
+            const error = document.getElementById('name-error');
+            victimName = input.value.trim();
+
+            if (!victimName) {
+                error.classList.remove('hidden');
+                playFailSound();
+                return;
+            }
+
+            error.classList.add('hidden');
+            document.getElementById('display-name').innerText = victimName;
+            document.getElementById('step-name').classList.add('hidden');
+            document.getElementById('step-question').classList.remove('hidden');
+            
+            // Đặt vị trí ban đầu cho nút Không
+            resetNoButton();
+            playBeep(600, 'sine', 0.1);
+        }
+
+        function dodgeButton() {
+            const btn = document.getElementById('no-btn');
+            const container = document.getElementById('btn-container');
+            const rect = container.getBoundingClientRect();
+            
+            dodgeCount++;
+            playBeep(300 + dodgeCount * 50, 'square', 0.08);
+
+            // Tính toán vị trí ngẫu nhiên trong khung
+            const maxX = rect.width - btn.offsetWidth;
+            const maxY = rect.height - btn.offsetHeight;
+
+            const randomX = Math.floor(Math.random() * maxX) - (maxX / 2);
+            const randomY = Math.floor(Math.random() * maxY) - (maxY / 2);
+
+            btn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+        }
+
+        function resetNoButton() {
+            const btn = document.getElementById('no-btn');
+            btn.style.transform = `translate(60px, 0px)`;
+        }
+
+        function clickedNo() {
+            playFailSound();
+            alert('❌ Không bấm được đâu! Hệ thống phát hiện bạn đang dối lòng, hãy bấm "CÓ" đi!');
+            dodgeButton();
+        }
+
+        function acceptTroll() {
+            playSuccessSound();
+            document.getElementById('step-question').classList.add('hidden');
+            document.getElementById('step-loading').classList.remove('hidden');
+
+            const statuses = [
+                "Đang phân tích mẫu DNA qua màn hình...",
+                "Đang đồng bộ dữ liệu với Trại Cún...",
+                "Đang in Giấy Chứng Nhận độc quyền...",
+                "Hoàn tất! Chuẩn bị nhận bằng..."
+            ];
+
+            const progressBar = document.getElementById('progress-bar');
+            const statusText = document.getElementById('loading-status');
+
+            let step = 0;
+            const interval = setInterval(() => {
+                step++;
+                progressBar.style.width = `${(step / statuses.length) * 100}%`;
+                
+                if (step < statuses.length) {
+                    statusText.innerText = statuses[step];
+                    playBeep(500 + step * 100, 'sine', 0.1);
+                } else {
+                    clearInterval(interval);
+                    showResult();
+                }
+            }, 800);
+        }
+
+        function showResult() {
+            document.getElementById('step-loading').classList.add('hidden');
+            document.getElementById('step-result').classList.remove('hidden');
+
+            document.getElementById('cert-name').innerText = victimName;
+
+            const titles = [
+                "🐶 CHÚ CÚN MẶT DÀY LẮM CÂU 🐶",
+                "🐶 CÚN CON SIÊU CẤP ĐÁNG YÊU 🐶",
+                "🐶 ĐẠI VƯƠNG CÚN NĂM 2026 🐶"
+            ];
+            const randomTitle = titles[Math.floor(Math.random() * titles.length)];
+            document.getElementById('cert-title').innerText = randomTitle;
+
+            // Bắn pháo hoa 🎉
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function shareLink() {
+            const dummyUrl = window.location.href;
+            
+            // Sao chép liên kết
+            const tempInput = document.createElement('input');
+            tempInput.value = dummyUrl;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            playBeep(800, 'triangle', 0.2);
+            alert('🎉 Đã sao chép đường dẫn web troll! Gửi ngay cho bạn bè vào bẫy nào!');
+        }
+
+        function resetQuiz() {
+            dodgeCount = 0;
+            document.getElementById('victim-name').value = '';
+            document.getElementById('step-result').classList.add('hidden');
+            document.getElementById('step-name').classList.remove('hidden');
+            document.getElementById('progress-bar').style.width = '0%';
+        }
+    </script>
+</body>
+</html>
